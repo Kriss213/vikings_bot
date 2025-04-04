@@ -1,0 +1,18 @@
+[submodule "vikings_bot_gazebo"]
+	path = vikings_bot_gazebo
+	url = git@github.com:Kriss213/vikings_bot_gazebo.git
+[submodule "vikings_bot_localization_server"]
+	path = vikings_bot_localization_server
+	url = git@github.com:Kriss213/vikings_bot_localization_server.git
+[submodule "vikings_bot_map_server"]
+	path = vikings_bot_map_server
+	url = git@github.com:Kriss213/vikings_bot_map_server.git
+[submodule "vikings_bot_path_planner_server"]
+	path = vikings_bot_path_planner_server
+	url = git@github.com:Kriss213/vikings_bot_path_planner_server.git
+[submodule "vikings_bot_bringup"]
+	path = vikings_bot_bringup
+	url = git@github.com:Kriss213/vikings_bot_bringup.git
+[submodule "vikings_bot_cartographer_slam"]
+	path = vikings_bot_cartographer_slam
+	url = git@github.com:Kriss213/vikings_bot_cartographer_slam.git
