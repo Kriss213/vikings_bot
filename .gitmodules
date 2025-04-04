@@ -16,3 +16,6 @@
 [submodule "vikings_bot_cartographer_slam"]
 	path = vikings_bot_cartographer_slam
 	url = git@github.com:Kriss213/vikings_bot_cartographer_slam.git
+[submodule "vikings_bot_description"]
+	path = vikings_bot_description
+	url = git@github.com:Kriss213/vikings_bot_description.git
