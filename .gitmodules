@@ -19,3 +19,6 @@
 [submodule "vikings_bot_description"]
 	path = vikings_bot_description
 	url = git@github.com:Kriss213/vikings_bot_description.git
+[submodule "vikings_bot_agent_abstraction_layer"]
+	path = vikings_bot_agent_abstraction_layer
+	url = git@github.com:Kriss213/vikings_bot_agent_abstraction_layer.git
