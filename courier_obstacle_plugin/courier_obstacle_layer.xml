@@ -1,0 +1,5 @@
+<library path="courier_obstacle_plugin_core">
+  <class type="courier_obstacle_plugin::CourierObstacleLayer" base_class_type="nav2_costmap_2d::Layer">
+    <description>A layer to temporarly add obstacles to costmap.</description>
+  </class>
+</library>
