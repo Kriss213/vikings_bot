@@ -48,7 +48,7 @@ public:
    	*/
 	sensor_msgs::msg::PointCloud2 transformToFrame(const sensor_msgs::msg::PointCloud2::SharedPtr msg, std::string frame);
 
-	std::string point_topic_; //PointCloud2 topic for points to add/clear
+	std::vector<std::string> point_topics_; // a vector of PointCloud2 topics for points to add/clear
 	double obstacle_duration_; // how long a point should be kept before clearing
 
 private:
@@ -58,6 +58,7 @@ private:
     std::mutex mutex_;
 
 	std::string costmap_frame_;
+	std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr> cloud_subscriptions_;
 
 	struct TimedPointCloud {
 		rclcpp::Time stamp;

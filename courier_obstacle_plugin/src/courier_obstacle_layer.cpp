@@ -12,19 +12,25 @@ namespace courier_obstacle_plugin
 void CourierObstacleLayer::onInitialize() {
   auto node = node_.lock(); 
   declareParameter("enabled", rclcpp::ParameterValue(true));
-  declareParameter("point_topic", rclcpp::ParameterValue(std::string("/obstacle_points")));
+  declareParameter("point_topics", rclcpp::ParameterValue(std::vector<std::string>{}));
   declareParameter("point_decay", rclcpp::ParameterValue(0.5));
 
   node->get_parameter(name_ + "." + "enabled", enabled_);
-  node->get_parameter(name_ + "." + "point_topic", point_topic_);
+  node->get_parameter(name_ + "." + "point_topics", point_topics_);
   node->get_parameter(name_ + "." + "point_decay", obstacle_duration_);
   
-  // subscribe to topic
-  point_subscription_ = node->create_subscription<sensor_msgs::msg::PointCloud2>(
-    point_topic_,
-    rclcpp::SensorDataQoS(),
-    std::bind(&CourierObstacleLayer::PointCloudCallback, this, std::placeholders::_1)
-  );
+  for (const auto & topic : point_topics_) {
+      auto sub = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+        topic,
+        rclcpp::SensorDataQoS(),
+        std::bind(&CourierObstacleLayer::PointCloudCallback, this, std::placeholders::_1)
+      );
+
+      cloud_subscriptions_.push_back(sub);
+      RCLCPP_INFO(node->get_logger(), "Subscribed to %s", topic.c_str());
+  }
+
+  
 
   // get costmap frame
   costmap_frame_ = layered_costmap_->getGlobalFrameID();
