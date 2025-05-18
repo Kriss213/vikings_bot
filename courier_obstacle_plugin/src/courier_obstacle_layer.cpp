@@ -14,17 +14,31 @@ void CourierObstacleLayer::onInitialize() {
   declareParameter("enabled", rclcpp::ParameterValue(true));
   declareParameter("point_topic", rclcpp::ParameterValue(std::string("/obstacle_points")));
   declareParameter("point_decay", rclcpp::ParameterValue(0.5));
+  declareParameter("position_topic", rclcpp::ParameterValue(""));
 
   node->get_parameter(name_ + "." + "enabled", enabled_);
   node->get_parameter(name_ + "." + "point_topic", point_topic_);
   node->get_parameter(name_ + "." + "point_decay", obstacle_duration_);
+  node->get_parameter(name_ + "." + "position_topic", position_topic_);
   
-  // subscribe to topic
-  point_subscription_ = node->create_subscription<sensor_msgs::msg::PointCloud2>(
-    point_topic_,
+  for (const auto & topic : point_topics_) {
+      auto sub = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+        topic,
+        rclcpp::SensorDataQoS(),
+        std::bind(&CourierObstacleLayer::PointCloudCallback, this, std::placeholders::_1)
+      );
+
+      cloud_subscriptions_.push_back(sub);
+      RCLCPP_INFO(node->get_logger(), "Subscribed to %s", topic.c_str());
+  }
+
+  // subscribe to position topic (the same as obstacle PC2)
+  auto position_sub = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+    position_topic_,
     rclcpp::SensorDataQoS(),
-    std::bind(&CourierObstacleLayer::PointCloudCallback, this, std::placeholders::_1)
+    std::bind(&CourierObstacleLayer::PointCloudPositionCallback, this, std::placeholders::_1)
   );
+  
 
   // get costmap frame
   costmap_frame_ = layered_costmap_->getGlobalFrameID();
@@ -94,6 +108,19 @@ void CourierObstacleLayer::PointCloudCallback(const sensor_msgs::msg::PointCloud
     sensor_msgs::PointCloud2ConstIterator<float> iter_y(transformed_cloud, "y");
     sensor_msgs::PointCloud2ConstIterator<float> iter_z(transformed_cloud, "z");
 
+    // check distance to point cloud from robot position
+    geometry_msgs::msg::Point new_pc2_center = PointCloudCenterPoint(msg);
+
+    double distance = std::sqrt(
+      std::pow(new_pc2_center.x - robot_position_.x, 2) +
+      std::pow(new_pc2_center.y - robot_position_.y, 2));
+
+
+    // nvm, this shan't be used
+    // if (distance > 3.0) {
+    //   return;
+    // }
+
     for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
       geometry_msgs::msg::Point pt;
       pt.x = *iter_x;
@@ -104,6 +131,36 @@ void CourierObstacleLayer::PointCloudCallback(const sensor_msgs::msg::PointCloud
 
     pointcloud_buffer_.push_back(pc);
     
+}
+
+void CourierObstacleLayer::PointCloudPositionCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+  // update agent position
+  robot_position_ = PointCloudCenterPoint(msg);
+}
+
+geometry_msgs::msg::Point CourierObstacleLayer::PointCloudCenterPoint(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+  // calculate center point of the point cloud
+  // this is not used in the current implementation
+  geometry_msgs::msg::Point center_point;
+  center_point.x = 0.0;
+  center_point.y = 0.0;
+  center_point.z = 0.0;
+
+  sensor_msgs::PointCloud2ConstIterator<float> iter_x(*msg, "x");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_y(*msg, "y");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_z(*msg, "z");
+
+  for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+    center_point.x += *iter_x;
+    center_point.y += *iter_y;
+    center_point.z += *iter_z;
+  }
+
+  center_point.x /= msg->width;
+  center_point.y /= msg->width;
+  center_point.z /= msg->width;
+
+  return center_point;
 }
 
 sensor_msgs::msg::PointCloud2 CourierObstacleLayer::transformToFrame(const sensor_msgs::msg::PointCloud2::SharedPtr msg, std::string frame) {

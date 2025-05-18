@@ -48,11 +48,18 @@ public:
    	*/
 	sensor_msgs::msg::PointCloud2 transformToFrame(const sensor_msgs::msg::PointCloud2::SharedPtr msg, std::string frame);
 
-	std::string point_topic_; //PointCloud2 topic for points to add/clear
+	std::vector<std::string> point_topics_; // a vector of PointCloud2 topics for points to add/clear
+
+	std::string position_topic_;
+
 	double obstacle_duration_; // how long a point should be kept before clearing
 
 private:
 	void PointCloudCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+	void PointCloudPositionCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+	geometry_msgs::msg::Point PointCloudCenterPoint(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+
+	geometry_msgs::msg::Point robot_position_;
 	
 	rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr point_subscription_;
     std::mutex mutex_;
