@@ -59,6 +59,7 @@ private:
 	void PointCloudPositionCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
 	geometry_msgs::msg::Point PointCloudCenterPoint(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
 
+	std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr> cloud_subscriptions_;
 	geometry_msgs::msg::Point robot_position_;
 	
 	rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr point_subscription_;

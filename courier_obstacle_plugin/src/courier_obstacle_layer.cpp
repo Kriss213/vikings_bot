@@ -17,7 +17,7 @@ void CourierObstacleLayer::onInitialize() {
   declareParameter("position_topic", rclcpp::ParameterValue(""));
 
   node->get_parameter(name_ + "." + "enabled", enabled_);
-  node->get_parameter(name_ + "." + "point_topic", point_topic_);
+  node->get_parameter(name_ + "." + "point_topic", point_topics_);
   node->get_parameter(name_ + "." + "point_decay", obstacle_duration_);
   node->get_parameter(name_ + "." + "position_topic", position_topic_);
   
